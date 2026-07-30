@@ -1,36 +1,130 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Backend Spend Manage
 
-## Getting Started
+Backend de gestión de gastos construido con Next.js (API Routes) y Supabase.
 
-First, run the development server:
+## URL Base
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+https://backend-spend-manage.vercel.app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Estructura de Respuesta
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Todas las respuestas siguen esta estructura:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```json
+{
+  "status": 1,
+  "mensaje_error": null,
+  "data": {}
+}
+```
 
-## Learn More
+| Campo | Tipo | Descripción |
+|-------|------|-------------|
+| status | `0` o `1` | 1 = éxito, 0 = error |
+| mensaje_error | `string` o `null` | Mensaje descriptivo del error, null si fue exitoso |
+| data | `object`, `array` o `null` | Datos de respuesta, null si hubo error |
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Servicios
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### POST /api/expenses
 
-## Deploy on Vercel
+Crea un nuevo gasto.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Request:**
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```json
+{
+  "email": "usuario@email.com",
+  "commerce": "Walmart",
+  "count": 150.50,
+  "name": "Compras del super"
+}
+```
+
+**Response exitosa (201):**
+
+```json
+{
+  "status": 1,
+  "mensaje_error": null,
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "commerce": "Walmart",
+    "count": 150.50,
+    "name": "Compras del super",
+    "created_at": "2025-07-30T12:00:00.000Z"
+  }
+}
+```
+
+**Errores posibles:**
+
+| HTTP | mensaje_error |
+|------|---------------|
+| 400 | Faltan campos requeridos |
+| 400 | El cuerpo de la solicitud no es un JSON válido |
+| 404 | No se encontró un usuario con ese email |
+| 500 | Error al buscar el usuario |
+| 500 | Error al crear el gasto |
+
+---
+
+### GET /api/expenses
+
+Obtiene todos los gastos ordenados por fecha (más recientes primero).
+
+**Request:**
+
+```
+GET /api/expenses
+```
+
+**Response exitosa (200):**
+
+```json
+{
+  "status": 1,
+  "mensaje_error": null,
+  "data": [
+    {
+      "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "commerce": "Walmart",
+      "count": 150.50,
+      "name": "Compras del super",
+      "created_at": "2025-07-30T12:00:00.000Z"
+    }
+  ]
+}
+```
+
+**Errores posibles:**
+
+| HTTP | mensaje_error |
+|------|---------------|
+| 500 | Error al obtener los gastos |
+
+---
+
+## Ejemplo de respuesta con error
+
+```json
+{
+  "status": 0,
+  "mensaje_error": "Faltan campos requeridos",
+  "data": null
+}
+```
+
+---
+
+## Variables de Entorno
+
+```
+SUPABASE_URL=https://tu-proyecto-id.supabase.co
+SUPABASE_ANON_KEY=tu-anon-key
+SUPABASE_SERVICE_ROLE_KEY=tu-service-role-key
+```
