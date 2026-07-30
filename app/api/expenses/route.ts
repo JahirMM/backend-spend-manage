@@ -6,15 +6,22 @@ export async function POST(request: Request) {
   try {
     let body;
     try {
-      body = await request.json();
+      const text = await request.text();
+      body = JSON.parse(text);
     } catch {
       return errorResponse(ERRORS.BODY_INVALIDO, 400);
     }
 
-    const { email, commerce, count, name } = body;
+    const email = body.email?.toString().trim();
+    const commerce = body.commerce?.toString().trim();
+    const count = body.count !== undefined ? Number(body.count) : null;
+    const name = body.name?.toString().trim();
 
     if (!email || !commerce || !count || !name) {
-      return errorResponse(ERRORS.CAMPOS_REQUERIDOS, 400);
+      return errorResponse(
+        `${ERRORS.CAMPOS_REQUERIDOS}: email, commerce, count, name. Recibido: ${JSON.stringify(body)}`,
+        400
+      );
     }
 
     // Buscar usuario por email en auth.users

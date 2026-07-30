@@ -1,6 +1,6 @@
 # Backend Spend Manage
 
-Backend de gestión de gastos construido con Next.js (API Routes) y Supabase.
+Backend de gestión de gastos construido con Next.js (API Routes) y Supabase. Diseñado para ser consumido desde la app Atajos de iPhone (automatización de Wallet).
 
 ## URL Base
 
@@ -32,7 +32,13 @@ Todas las respuestas siguen esta estructura:
 
 ### POST /api/expenses
 
-Crea un nuevo gasto.
+Crea un nuevo gasto asociado a un usuario por su email.
+
+**Headers:**
+
+```
+Content-Type: application/json
+```
 
 **Request:**
 
@@ -44,6 +50,13 @@ Crea un nuevo gasto.
   "name": "Compras del super"
 }
 ```
+
+| Campo | Tipo | Requerido | Descripción |
+|-------|------|-----------|-------------|
+| email | string | sí | Email del usuario registrado en Supabase |
+| commerce | string | sí | Nombre del comercio |
+| count | number | sí | Monto del gasto (acepta string numérico) |
+| name | string | sí | Descripción del gasto |
 
 **Response exitosa (201):**
 
@@ -121,10 +134,18 @@ GET /api/expenses
 
 ---
 
+## Notas técnicas
+
+- El campo `count` acepta tanto número como string numérico (se convierte automáticamente)
+- Los strings se limpian de espacios extra (trim)
+- Compatible con la app Atajos de iPhone para automatizaciones de Wallet
+
+---
+
 ## Variables de Entorno
 
 ```
-SUPABASE_URL=https://tu-proyecto-id.supabase.co
+SUPABASE_URL=https://tu-proyecto.supabase.co
 SUPABASE_ANON_KEY=tu-anon-key
 SUPABASE_SERVICE_ROLE_KEY=tu-service-role-key
 ```
