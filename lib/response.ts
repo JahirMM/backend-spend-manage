@@ -37,3 +37,4 @@ export const ERRORS = {
   METODO_NO_PERMITIDO: "Método no permitido",
   BODY_INVALIDO: "El cuerpo de la solicitud no es un JSON válido",
 } as const;
+ 

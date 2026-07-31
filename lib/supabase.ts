@@ -12,38 +12,33 @@ function getHeaders() {
 
 // Buscar usuario por email en auth.users
 export async function getUserByEmail(email: string) {
-  const res = await fetch(
-    `${supabaseUrl}/auth/v1/admin/users`,
-    {
-      headers: getHeaders(),
-    }
-  );
+  const res = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
+    headers: getHeaders(),
+  });
 
   if (!res.ok) {
     throw new Error(`Error buscando usuarios: ${res.statusText}`);
   }
 
   const data = await res.json();
-  const user = data.users?.find(
-    (u: { email: string }) => u.email === email
-  );
+  const user = data.users?.find((u: { email: string }) => u.email === email);
 
   return user || null;
 }
 
 // Insertar un registro en una tabla
-export async function insertRow(table: string, row: Record<string, unknown>) {
-  const res = await fetch(
-    `${supabaseUrl}/rest/v1/${table}`,
-    {
-      method: "POST",
-      headers: {
-        ...getHeaders(),
-        Prefer: "return=representation",
-      },
-      body: JSON.stringify(row),
-    }
-  );
+export async function insertRow<T extends object, R = T>(
+  table: string,
+  row: T,
+): Promise<R> {
+  const res = await fetch(`${supabaseUrl}/rest/v1/${table}`, {
+    method: "POST",
+    headers: {
+      ...getHeaders(),
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify(row),
+  });
 
   if (!res.ok) {
     const error = await res.json();
@@ -51,11 +46,14 @@ export async function insertRow(table: string, row: Record<string, unknown>) {
   }
 
   const data = await res.json();
-  return data[0];
+  return data[0] as R;
 }
 
 // Consultar registros de una tabla con filtros
-export async function selectRows(table: string, filters: string = "") {
+export async function selectRows<R = unknown>(
+  table: string,
+  filters: string = "",
+): Promise<R> {
   const url = `${supabaseUrl}/rest/v1/${table}?${filters}`;
   const res = await fetch(url, {
     headers: {
