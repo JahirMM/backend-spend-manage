@@ -69,3 +69,80 @@ export async function selectRows<R = unknown>(
 
   return res.json();
 }
+
+// Buscar usuario por id en auth.users
+export async function getUserById(userId: string) {
+  const res = await fetch(`${supabaseUrl}/auth/v1/admin/users/${userId}`, {
+    headers: getHeaders(),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Error buscando usuario por id: ${res.statusText}`);
+  }
+
+  const user = await res.json();
+  return user || null;
+}
+
+// Actualizar un registro en una tabla por id
+export async function updateRow<T extends object, R = T>(
+  table: string,
+  id: string,
+  patch: T,
+): Promise<R> {
+  const res = await fetch(`${supabaseUrl}/rest/v1/${table}?id=eq.${id}`, {
+    method: "PATCH",
+    headers: {
+      ...getHeaders(),
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify(patch),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || `Error actualizando en ${table}`);
+  }
+
+  const data = await res.json();
+  return data[0] as R;
+}
+
+// Actualizar registros en una tabla con filtro custom
+export async function updateRowByFilter<T extends object, R = T>(
+  table: string,
+  filter: string,
+  patch: T,
+): Promise<R[]> {
+  const res = await fetch(`${supabaseUrl}/rest/v1/${table}?${filter}`, {
+    method: "PATCH",
+    headers: {
+      ...getHeaders(),
+      Prefer: "return=representation",
+    },
+    body: JSON.stringify(patch),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || `Error actualizando en ${table}`);
+  }
+
+  return res.json();
+}
+
+// Eliminar registros de una tabla con filtro
+export async function deleteRows(
+  table: string,
+  filter: string,
+): Promise<void> {
+  const res = await fetch(`${supabaseUrl}/rest/v1/${table}?${filter}`, {
+    method: "DELETE",
+    headers: getHeaders(),
+  });
+
+  if (!res.ok) {
+    const error = await res.json();
+    throw new Error(error.message || `Error eliminando en ${table}`);
+  }
+}
